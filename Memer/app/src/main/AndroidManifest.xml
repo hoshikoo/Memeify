@@ -30,6 +30,16 @@
             android:screenOrientation="portrait">
         </activity>
 
+        <provider
+            android:name="com.aviary.android.feather.sdk.internal.cds.AviaryCdsProvider"
+            android:authorities="${applicationId}.AviaryCdsProvider"
+            android:exported="false"
+            android:process=":aviary_cds" />
+
+        <meta-data
+            android:name="com.aviary.android.feather.v1.API_KEY"
+            android:value="958f6b23c0604850aae5bfc2f0c62628" />
+
 
     </application>
 

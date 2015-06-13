@@ -10,6 +10,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -21,7 +22,13 @@ import android.widget.ImageView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
+import com.adobe.creativesdk.foundation.AdobeCSDKFoundation;
+import com.aviary.android.feather.sdk.AviaryIntent;
+import com.aviary.android.feather.sdk.internal.Constants;
+import com.aviary.android.feather.sdk.internal.headless.utils.MegaPixels;
+
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -47,11 +54,43 @@ public class SecondActivity extends AppCompatActivity implements Serializable {
     private SharedPreferences preferences = null;
     private EditText top, bottom, big, small;
     private String string1, string2;
+    public ImageButton changeImage, shareImage, saveImage;
 
+    private File photo = null;
+    private Uri imageUri;
+    private static int TAKE_PICTURE = 1;
+    private static final int EDIT_PICTURE = 3;
+    Button editButton;
 
     //Quick added features
-    private Button colorChange, colorChange2;
+    private Button colorChangeRed, colorChangeBlue, colorChangeWhite;
 
+
+    //put all elements supposed to show onCreate in the method to make it easier to read.
+    private void intializeViews() {
+        viewSwitcher = (ViewSwitcher) findViewById(R.id.viewswitcher);
+        imageView = (ImageView) findViewById(R.id.insert_pic_id);
+        imageView2 = (ImageView) findViewById(R.id.insert_pic_id2);
+        changeImage = (ImageButton) findViewById(R.id.change_img);
+        shareImage = (ImageButton) findViewById(R.id.share);
+        saveImage = (ImageButton) findViewById(R.id.save);
+        top = (EditText) findViewById(R.id.top);
+        bottom = (EditText) findViewById(R.id.bottom);
+        big = (EditText) findViewById(R.id.bigtext);
+        small = (EditText) findViewById(R.id.smalltext);
+        top.setMovementMethod(null);
+        bottom.setMovementMethod(null);
+        //change the button name with color.
+        colorChangeRed = (Button) findViewById(R.id.change_color_text_id);
+        colorChangeBlue = (Button) findViewById(R.id.change_color_text_id2);
+        colorChangeWhite = (Button) findViewById(R.id.change_color_text_id3);
+
+
+        editButton = (Button) findViewById(R.id.editButton);
+        //button needs to show only when picture was taken.
+        editButton.setVisibility(View.INVISIBLE);
+        editButton.setOnClickListener(editListener);
+    }
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -67,143 +106,38 @@ public class SecondActivity extends AppCompatActivity implements Serializable {
             uri2 = savedInstanceState.getParcelable("uri2");
         }
 
-
-        viewSwitcher = (ViewSwitcher) findViewById(R.id.viewswitcher);
-        imageView = (ImageView) findViewById(R.id.insert_pic_id);
-        imageView2 = (ImageView) findViewById(R.id.insert_pic_id2);
-        ImageButton changeImage = (ImageButton) findViewById(R.id.change_img);
-        ImageButton shareImage = (ImageButton) findViewById(R.id.share);
-        ImageButton saveImage = (ImageButton) findViewById(R.id.save);
-        top = (EditText) findViewById(R.id.top);
-        bottom = (EditText) findViewById(R.id.bottom);
-        big = (EditText) findViewById(R.id.bigtext);
-        small = (EditText) findViewById(R.id.smalltext);
-        top.setMovementMethod(null);
-        bottom.setMovementMethod(null);
+        intializeViews();
+//
+//        AdobeCSDKFoundation.initializeCSDKFoundation(getApplicationContext());
+//        Intent intent = AviaryIntent.createCdsInitIntent(getBaseContext());
+//        startService(intent);
 
 
-        //added this feature last minute.
-        colorChange = (Button) findViewById(R.id.change_color_text_id);
 
-        colorChange.setOnClickListener(new View.OnClickListener() {
+        colorChangeRed.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                big.setTextColor(Color.RED);
-                small.setTextColor(Color.RED);
-                top.setTextColor(Color.RED);
-                bottom.setTextColor(Color.RED);
-
+                int color = Color.RED;
+                setTxColor(color);
+            }
+        });
 
 
-                if (isVanilla) {
-                    string1 = top.getText().toString();
-                    string2 = bottom.getText().toString();
-
-                    big.setTextColor(Color.RED);
-                    small.setTextColor(Color.RED);
-                    top.setTextColor(Color.RED);
-                    bottom.setTextColor(Color.RED);
-
-                    big.setText(string1);
-                    small.setText(string2);
-                    isVanilla = !isVanilla;
-                } else {
-                    string1 = big.getText().toString();
-                    string2 = small.getText().toString();
-
-                    big.setTextColor(Color.RED);
-                    small.setTextColor(Color.RED);
-                    top.setTextColor(Color.RED);
-                    bottom.setTextColor(Color.RED);
-
-                    top.setText(string1);
-                    bottom.setText(string2);
-                    isVanilla = true;
-                }
-
-
+        colorChangeBlue.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int color = Color.BLUE;
+                setTxColor(color);
 
             }
         });
 
-        colorChange2 = (Button) findViewById(R.id.change_color_text_id2);
 
-        colorChange2.setOnClickListener(new View.OnClickListener() {
+        colorChangeWhite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                big.setTextColor(Color.BLUE);
-                small.setTextColor(Color.BLUE);
-                top.setTextColor(Color.BLUE);
-                bottom.setTextColor(Color.BLUE);
-
-                if (isVanilla) {
-                    string1 = top.getText().toString();
-                    string2 = bottom.getText().toString();
-
-                    big.setTextColor(Color.BLUE);
-                    small.setTextColor(Color.BLUE);
-                    top.setTextColor(Color.BLUE);
-                    bottom.setTextColor(Color.BLUE);
-
-                    big.setText(string1);
-                    small.setText(string2);
-                    isVanilla = !isVanilla;
-                } else {
-                    string1 = big.getText().toString();
-                    string2 = small.getText().toString();
-
-                    big.setTextColor(Color.BLUE);
-                    small.setTextColor(Color.BLUE);
-                    top.setTextColor(Color.BLUE);
-                    bottom.setTextColor(Color.BLUE);
-
-                    top.setText(string1);
-                    bottom.setText(string2);
-                    isVanilla = true;
-                }
-
-            }
-        });
-
-        Button colorChange3 = (Button) findViewById(R.id.change_color_text_id3);
-
-        colorChange3.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                big.setTextColor(Color.WHITE);
-                small.setTextColor(Color.WHITE);
-                top.setTextColor(Color.WHITE);
-                bottom.setTextColor(Color.WHITE);
-
-                if (isVanilla) {
-                    string1 = top.getText().toString();
-                    string2 = bottom.getText().toString();
-
-                    big.setTextColor(Color.WHITE);
-                    small.setTextColor(Color.WHITE);
-                    top.setTextColor(Color.WHITE);
-                    bottom.setTextColor(Color.WHITE);
-
-                    big.setText(string1);
-                    small.setText(string2);
-                    isVanilla = !isVanilla;
-                } else {
-                    string1 = big.getText().toString();
-                    string2 = small.getText().toString();
-
-                    big.setTextColor(Color.WHITE);
-                    small.setTextColor(Color.WHITE);
-                    top.setTextColor(Color.WHITE);
-                    bottom.setTextColor(Color.WHITE);
-
-                    top.setText(string1);
-                    bottom.setText(string2);
-                    isVanilla = true;
-                }
-
+                int color = Color.WHITE;
+                setTxColor(color);
             }
         });
 
@@ -363,6 +297,43 @@ public class SecondActivity extends AppCompatActivity implements Serializable {
         }
     }
 
+
+    //color setting on texts was repeated so made the separate method.
+    public void setTxColor(int color){
+        big.setTextColor(color);
+        small.setTextColor(color);
+        top.setTextColor(color);
+        bottom.setTextColor(color);
+
+        if (isVanilla) {
+            string1 = top.getText().toString();
+            string2 = bottom.getText().toString();
+
+            big.setTextColor(color);
+            small.setTextColor(color);
+            top.setTextColor(color);
+            bottom.setTextColor(color);
+
+            big.setText(string1);
+            small.setText(string2);
+            isVanilla = !isVanilla;
+        } else {
+            string1 = big.getText().toString();
+            string2 = small.getText().toString();
+
+            big.setTextColor(color);
+            small.setTextColor(color);
+            top.setTextColor(color);
+            bottom.setTextColor(color);
+
+            top.setText(string1);
+            bottom.setText(string2);
+            isVanilla = true;
+        }
+    }
+
+
+
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         int width = imageView.getWidth();
@@ -409,6 +380,7 @@ public class SecondActivity extends AppCompatActivity implements Serializable {
             uri = data.getData();
             imageView.setImageURI(uri);
             imageView2.setImageURI(uri);
+
         }
 
         if (requestCode == 0 && resultCode == RESULT_OK) {
@@ -417,6 +389,15 @@ public class SecondActivity extends AppCompatActivity implements Serializable {
             imageView2.setImageURI(uri.normalizeScheme());
         }
     }
+
+//    //method for requesting camera to capture image and save it under a new file
+//    public void takePhoto() {
+//        Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
+//        photo = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "picture.jpg");
+//        imageUri = Uri.fromFile(photo);
+//        intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+//        startActivityForResult(intent, TAKE_PICTURE);
+//    }
 
     //This is for the dialog box: Camera or Gallery
     private void showListViewDialog() {
@@ -436,6 +417,8 @@ public class SecondActivity extends AppCompatActivity implements Serializable {
                         startActivityForResult(intent, 0);
 
                     }
+
+
                 }
 
                 if (items[which].equalsIgnoreCase("Gallery")) {
@@ -447,6 +430,42 @@ public class SecondActivity extends AppCompatActivity implements Serializable {
         AlertDialog alertDialog = dialogBuilder.create();
         alertDialog.show();
     }
+
+
+    //open up the editor to edit the picture loaded in imageView
+    private void editPhoto(View v) {
+        photo = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "picture.jpg");
+
+        Intent aviaryIntent = new AviaryIntent
+                .Builder(this)
+                .setData(imageUri)
+                .withOutput(photo)
+                .withOutputSize(MegaPixels.Mp5)
+                .build();
+
+        imageUri = Uri.fromFile(photo);
+
+        Bundle extra = aviaryIntent.getExtras();
+        if (null != extra) {
+            // image has been changed?
+            boolean changed = extra.getBoolean(Constants.EXTRA_OUT_BITMAP_CHANGED);
+            if (changed) {
+                aviaryIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+
+            }
+        }
+        startActivityForResult(aviaryIntent, EDIT_PICTURE);
+
+    }
+
+
+    private View.OnClickListener editListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            editPhoto(v);
+        }
+    };
+
 
     //saves the current state
     @Override

@@ -10,9 +10,20 @@ import android.speech.tts.TextToSpeech;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageButton;
+
+import com.adobe.creativesdk.foundation.auth.IAdobeAuthClientCredentials;
+
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity {
+
+//import com.adobe.creativesdk.foundation.AdobeCSDKFoundation;
+//import com.adobe.creativesdk.foundation.auth.IAdobeAuthClientCredentials;
+//import com.aviary.android.feather.sdk.AviaryIntent;
+//import com.aviary.android.feather.sdk.internal.Constants;
+//import com.aviary.android.feather.sdk.internal.headless.utils.MegaPixels;
+
+public class MainActivity extends AppCompatActivity implements IAdobeAuthClientCredentials {
+//    public class MainActivity extends AppCompatActivity  {
 
     private TextToSpeech t1;
     private Intent intent;
@@ -91,5 +102,15 @@ public class MainActivity extends AppCompatActivity {
         });
         AlertDialog alertDialog = dialogBuilder.create();
         alertDialog.show();
+    }
+
+    @Override
+    public String getClientID () {
+        return AviaryEditor.YOUR_API_KEY;
+    }
+
+    @Override
+    public String getClientSecret () {
+        return AviaryEditor.YOUR_API_SECRET;
     }
 }
