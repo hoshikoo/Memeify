@@ -22,7 +22,6 @@ import android.widget.ImageView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
-import com.adobe.creativesdk.foundation.AdobeCSDKFoundation;
 import com.aviary.android.feather.sdk.AviaryIntent;
 import com.aviary.android.feather.sdk.internal.Constants;
 import com.aviary.android.feather.sdk.internal.headless.utils.MegaPixels;
@@ -86,10 +85,10 @@ public class SecondActivity extends AppCompatActivity implements Serializable {
         colorChangeWhite = (Button) findViewById(R.id.change_color_text_id3);
 
 
-        editButton = (Button) findViewById(R.id.editButton);
+        //editButton = (Button) findViewById(R.id.editButton);
         //button needs to show only when picture was taken.
-        editButton.setVisibility(View.INVISIBLE);
-        editButton.setOnClickListener(editListener);
+        //editButton.setVisibility(View.INVISIBLE);
+        //editButton.setOnClickListener(editListener);
     }
 
     @Override
@@ -381,12 +380,15 @@ public class SecondActivity extends AppCompatActivity implements Serializable {
             imageView.setImageURI(uri);
             imageView2.setImageURI(uri);
 
+
+
         }
 
         if (requestCode == 0 && resultCode == RESULT_OK) {
             uri = Uri.parse(stringVariable);
             imageView.setImageURI(uri.normalizeScheme());
             imageView2.setImageURI(uri.normalizeScheme());
+
         }
     }
 
@@ -409,10 +411,15 @@ public class SecondActivity extends AppCompatActivity implements Serializable {
             public void onClick(DialogInterface dialog, int which) {
 
                 if (items[which].equalsIgnoreCase("Camera")) {
-                    intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//                    intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//                    Uri imageFileUri = Uri.parse(stringVariable);
+//                    intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, imageFileUri);
 
-                    Uri imageFileUri = Uri.parse(stringVariable);
-                    intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, imageFileUri);
+                    Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
+                    photo = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "picture.jpg");
+                    imageUri = Uri.fromFile(photo);
+                    intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+
                     if (intent.resolveActivity(getPackageManager()) != null) {
                         startActivityForResult(intent, 0);
 
@@ -458,13 +465,13 @@ public class SecondActivity extends AppCompatActivity implements Serializable {
 
     }
 
-
-    private View.OnClickListener editListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            editPhoto(v);
-        }
-    };
+//
+//    private View.OnClickListener editListener = new View.OnClickListener() {
+//        @Override
+//        public void onClick(View v) {
+//            editPhoto(v);
+//        }
+//    };
 
 
     //saves the current state
